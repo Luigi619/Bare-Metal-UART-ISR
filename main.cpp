@@ -12,12 +12,16 @@ int main(){
 	/*Enable clock to UART2*/
 	mcal::reg::reg_access<std::uint32_t, std::uint32_t, mcal::reg::apb1enr, (1U<<17)>::reg_or();
 	
+	/*Configure PA2 as ALT pin UART2 TX*/
+	mcal::reg::reg_access<std::uint32_t, std::uint32_t, mcal::reg::gpioa_moder,~(1U<<4)>::reg_and();
+	mcal::reg::reg_access<std::uint32_t, std::uint32_t, mcal::reg::gpioa_moder,(1U<<5)>::reg_or();
+	
 	/*Configure PA3 as ALT pin UART2 RX*/
 	mcal::reg::reg_access<std::uint32_t, std::uint32_t, mcal::reg::gpioa_moder,~(1U<<6)>::reg_and();
 	mcal::reg::reg_access<std::uint32_t, std::uint32_t, mcal::reg::gpioa_moder,(1U<<7)>::reg_or();
 	
 	/*Set ALT type to UART2*/
-	mcal::reg::reg_access<std::uint32_t, std::uint32_t, mcal::reg::gpioa_afrl,0x7000>::reg_or();
+	mcal::reg::reg_access<std::uint32_t, std::uint32_t, mcal::reg::gpioa_afrl,0x7700>::reg_or();
 	//mcal::reg::reg_access<std::uint32_t, std::uint32_t, mcal::reg::gpioa_afrl,(1U<<9)>::reg_or();
 	//mcal::reg::reg_access<std::uint32_t, std::uint32_t, mcal::reg::gpioa_afrl,(1U<<10)>::reg_or();
 	//mcal::reg::reg_access<std::uint32_t, std::uint32_t, mcal::reg::gpioa_afrl,(0U<<11)>::reg_and();
@@ -26,7 +30,7 @@ int main(){
 	mcal::reg::reg_access<std::uint32_t, std::uint32_t, mcal::reg::uart2_brr,0x0683>::reg_set();
 	
 	/*Enable Rx, 8-bit*/
-	mcal::reg::reg_access<std::uint32_t, std::uint32_t, mcal::reg::uart2_cr1,0x04>::reg_set();
+	mcal::reg::reg_access<std::uint32_t, std::uint32_t, mcal::reg::uart2_cr1,0x0C>::reg_set();
 	
 	/*1 stop bit*/
 	mcal::reg::reg_access<std::uint32_t, std::uint32_t, mcal::reg::uart2_cr2,0x00>::reg_set();
@@ -39,6 +43,7 @@ int main(){
 	
 	while(1){
 		msg_ch = uart2_read();
+		uart2_write(msg_ch);
 		for(int i = 0; i < 180000; i++){}
 	}
 }
